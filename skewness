@@ -9,11 +9,6 @@ skewed <- skewed[(skewed > 0.8) | (skewed < -0.8)]
 kurtosis <- apply(df.numeric, 2, kurtosi)
 kurtosis <- kurtosis[(kurtosis > 3.0) | (kurtosis < -3.0)]
 
-for(col in names(skewed)){
-  if(0 %in% df.numeric[, col]) {
-    df.numeric[,col] <- log(1+df.numeric[,col])
-  }
-  else {
-    df.numeric[,col] <- log(df.numeric[,col])
-  }
-}
+ggplot(data = melt.boston, aes(x = value)) + 
+stat_density() + 
+facet_wrap(~variable, scales = "free")
