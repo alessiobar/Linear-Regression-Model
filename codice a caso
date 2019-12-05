@@ -89,3 +89,8 @@ lasso.pred=predict( lasso.mod, s=bestlam , newx=allenamento.test)
 mean((lasso.pred-y.test)^2)
 mse(lasso.pred,y.test)
 plot(lasso.pred,y.test)
+
+out=glmnet(allenamento,y,alpha=1)
+lasso.coef=predict(out,type="coefficients",s=bestlam)[1:20,]
+lasso.coef
+
