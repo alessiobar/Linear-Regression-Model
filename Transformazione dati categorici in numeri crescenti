@@ -1,0 +1,20 @@
+#Numeric factors that should be categorical
+data[["MoSold"]] <- factor(data[["MoSold"]])
+data[["GarageYrBlt"]] <- factor(data[["GarageYrBlt"]])
+data[["MSSubClass"]] <- factor(data[["MSSubClass"]])
+
+
+#Categorical factors that should be numeric
+data[["ExterQual"]] <- as.numeric(factor(data[["ExterQual"]], levels=c("None","Po","Fa", "TA", "Gd", "Ex")))
+data[["ExterCond"]] <- as.numeric(factor(data[["ExterCond"]], levels=c("None","Po","Fa", "TA", "Gd", "Ex")))
+data[["BsmtQual"]] <- as.numeric(factor(data[["BsmtQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["BsmtCond"]] <- as.numeric(factor(data[["BsmtCond"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["BsmtExposure"]] <- as.numeric(factor(data[["BsmtExposure"]], levels=c("None","No", "Mn", "Av", "Gd")))
+data[["BsmtFinType1"]] <- as.numeric(factor(data[["BsmtFinType1"]], levels=c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ")))
+data[["BsmtFinType2"]] <- as.numeric(factor(data[["BsmtFinType2"]], levels=c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ")))
+data[["HeatingQC"]] <- as.numeric(factor(data[["HeatingQC"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["KitchenQual"]] <- as.numeric(factor(data[["KitchenQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["FireplaceQu"]] <- as.numeric(factor(data[["FireplaceQu"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["GarageQual"]] <- as.numeric(factor(data[["GarageQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["GarageCond"]] <- as.numeric(factor(data[["GarageCond"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["PoolQC"]] <- as.numeric(factor(data[["PoolQC"]], levels=c("None", "Fa", "TA", "Gd", "Ex")))
