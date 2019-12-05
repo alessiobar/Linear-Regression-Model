@@ -1,0 +1,26 @@
+train[["BsmtQual"]] <- as.numeric(factor(train[["BsmtQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["BsmtCond"]] <- as.numeric(factor(train[["BsmtCond"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["BsmtExposure"]] <- as.numeric(factor(train[["BsmtExposure"]], levels=c("None","No", "Mn", "Av", "Gd")))
+train[["BsmtFinType1"]] <- as.numeric(factor(train[["BsmtFinType1"]], levels=c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ")))
+train[["BsmtFinType2"]] <- as.numeric(factor(train[["BsmtFinType2"]], levels=c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ")))
+train[["HeatingQC"]] <- as.numeric(factor(train[["HeatingQC"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["KitchenQual"]] <- as.numeric(factor(train[["KitchenQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["FireplaceQu"]] <- as.numeric(factor(train[["FireplaceQu"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["GarageQual"]] <- as.numeric(factor(train[["GarageQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+train[["GarageCond"]] <- as.numeric(factor(train[["GarageCond"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+
+
+Corr_cat <- cbind(train[["BsmtQual"]],train[["BsmtCond"]],train[["BsmtExposure"]],train[["BsmtFinType1"]],train[["BsmtFinType2"]],train[["KitchenQual"]],train[["FireplaceQu"]],train[["GarageQual"]],train[["GarageCond"]],train[[80]])
+library(GGally)
+
+
+a=ggcorr(Corr_cat, low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')$data
+temp = subset(a, x== "V10")
+head(temp)
+Useful = subset(temp, abs(coefficient) > 0.05)
+head(Useful)
+View(Useful)
+RigaUtile=Useful$y
+Dataset = Corr_cat[, colnames(Corr_cat) %in% RigaUtile]  
+Corr_cat<- cbind(Dataset)
+Dataset <- NULL
