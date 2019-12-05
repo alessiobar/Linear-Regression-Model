@@ -5,140 +5,44 @@ library(ggplot2)
 library(GGally)
 library(grDevices)
 library(glmnet)
+library(caret)
 
 train = read.csv("train.csv")
 test = read.csv("test.csv")
+train_num=train[, (sapply(train, class) == "integer")]
+data = rbind(train[, -c(length(train))], test)
 
-miro=train[, (sapply(train, class) == "integer")]
-
-#[-55,145] fuori da quello so outlier, IQR=Q3-Q1, [q1-iqr*1.5,q3+iqr*1.5]
-boxplot(miro$LotFrontage)
-a=boxplot.stats(miro$LotFrontage)
+#Outlier singola colonna
+boxplot(train_num$LotFrontage)
+a=boxplot.stats(train_num$LotFrontage)
 b=as.factor(a$out)
 c=levels(b)
-tempp=miro
+tempp=train_num
 for(x in c){
   print(x)
   tempp= tempp[!tempp$LotFrontage== x,]
 }
 summary(tempp[1:3])
 
-no_out=miro
+#Outlier tutte le colonne
+no_out=train_num
 i=1
-for(y in colnames(miro[1:10])){ 
- if(class(miro[[i]][1])=='integer'){
-  print(y)
-  a=boxplot.stats(miro[[y]])$out
-  c=levels(as.factor(a))
-  print(c)
-  for(x in c){
-    no_out= no_out[!no_out[[y]]== x,]
+for(y in colnames(train_num[1:10])){ 
+  if(class(train_num[[i]][1])=='integer'){
+    print(y)
+    a=boxplot.stats(train_num[[y]])$out
+    c=levels(as.factor(a))
+    print(c)
+    for(x in c){
+      no_out= no_out[!no_out[[y]]== x,]
+    }
   }
- }
   i=i+1
 }
 
-
-
-
-data = rbind(train[, -c(length(train))], test)
-
-#------------------------------------
-nzv_cols = nearZeroVar(data)
-names(data[nzv_cols])
-
-if(length(nzv_cols) > 0){
-  data = data[, -nzv_cols]
-}
-
-
-data_cat = data[, (sapply(data, class) != "integer")]
-data_num = data[, (sapply(data, class) == "integer")]
-
-miro=train[, (sapply(train, class) == "integer")]
-
-sum(is.na(data_num))
-
-
-
-# remove the NAs, with the help of a custom function
-
-fill.na.num = function(x){
-  for(i in 1:length(x)){
-    col = x[, i]
-    if(sum(is.na(col)) > 0){
-      col[is.na(col)] = median(col, na.rm = TRUE)
-    }
-    x[, i] = col
-  } 
-  return(x)
-}
-
-print(sum(is.na.data.frame(data_num)))
-data_num = fill.na.num(data_num)
-print(sum(is.na.data.frame(data_num)))
-
-getmode <- function(v) {
-  uniqv <- unique(v)
-  uniqv[which.max(tabulate(match(v, uniqv)))]
-}
-
-fill.na.cat = function(x){
-  
-  for(i in 1:length(x)){
-    col = x[, i]
-    if(sum(is.na(col)) > 0){
-      col[is.na(col) == TRUE] = getmode(na.omit(col))
-    }
-    x[, i] = col
-  }
-  return(x)
-}
-
-print(sum(is.na.data.frame(data_cat)))
-data_cat = fill.na.cat(data_cat)
-print(sum(is.na.data.frame(data_cat)))
-
-head(data_cat)
-data_cat = one_hot(as.data.table(data_cat))
-head(data_cat)
-
-# merge numerical and categorical variables
-data_processed = cbind(data_num, data_cat)
-
-#--------------
-
-
-# divide back train and test
-data_processed_train = data_processed[1:1100,]
-data_processed_train = cbind(data_processed_train, train["SalePrice"])
-data_processed_test = data_processed[1101:dim(data_processed)[1], ]
-
-
-
-# a brief look at the data that will be used for training
-head(data_processed_train)
-
-model = lm(SalePrice ~ ., data=data_processed_train)
-
-y.hat = predict(model, data_processed_test)
-
-
-
-# output the predictions into a file (order matters, so do not shuffle the test set)
-write.table(y.hat, "preds.csv", row.names = FALSE, col.names = FALSE)
-
-
-#------
-colSums(is.na(data_processed))
-
-cor.mat = cor(data_num[1:15])
-corrplot(cor.mat)
-corrplot(cor.mat, na.label = "NA")
-
-
-ggcorr(miro[1:37], low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')
-a=ggcorr(miro[1:37], low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')$data
+#Low Correlation w.r.t. SalePrice
+ggcorr(train_num[1:37], low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')
+a=ggcorr(train_num[1:37], low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')$data
 temp = subset(a, x=="SalePrice")
 head(temp)
 confal = subset(temp, abs(coefficient) >= 0.1)
@@ -146,46 +50,14 @@ head(confal)
 View(confal)
 colonne_rimosse=length(temp$y)-length(confal$y)
 
-#-------------
-aaa=confal$y
-porcodio = miro[, colnames(miro) %in% aaa]
+#Near Zero Variance fix
+nzv_cols = nearZeroVar(data)
+names(data[nzv_cols])
+if(length(nzv_cols) > 0){
+  data = data[, -nzv_cols]
+}
 
-View(porcodio)
-
-omar=sapply(data_cat, is.factor)
-ramo=sapply(data_cat[,omar],unclass)
-out=cbind(data_cat[,!omar],ramo)
-
-swiss <- datasets::swiss
-x <- model.matrix(Fertility~., swiss)[,-1]
-y <- swiss$Fertility
-lambda <- 10^seq(10, -2, length = 100)
-lasso.mod <- glmnet(x[train,], y[train], alpha = 1, lambda = lambda)
-
-lasso.pred <- predict(lasso.mod, s = bestlam, newx = x[test,])
-mean((lasso.pred-ytest)^2)
-
-#-----------------------------------Regularization with Ridge, Lasso and Elastic-net
-set.seed(42)
-n=1000
-p=5000
-real_p=15
-
-x = matrix(rnorm(n*p), nrow=n, ncol=p)
-y = apply(x[,1:real_p],1, sum)+rnorm(n) #vector to predict, made of the sum of the first 15 columns of x (conta che so numeri positivi e negativi) quindi dipendente solo da quelle colonne + a cui aggiungo un vettore di random noise
-
-train_rows=sample(1:n, 0.66*n) #sample funct, randomly selects numbers between 1 and n, selection 66% i.e. 2/3 del dataset
-x.train= x[train_rows,]
-x.test = x[-train_rows,]
-y.train= y[train_rows]
-y.test = y[-train_rows]
-#----Ridge, alpha=0
-#Linear regression fit with a ridge regression penalty using 10-fold cv to find optimal lambda
-alpha0.fit = cv.glmnet(x.train, y.train, type.measure = "mse", alpha=0, family="gaussian") #cross-validation (cv) for finding optimal value for lambda, default: 10-fold validation. x and y are the two training sets. gaussian cuz we are doing linear regression
-alpha0.predicted = predict(alpha0.fit, s=alpha0.fit[["lambda.1se"]], newx=x.test)
-mean((y.test-alpha0.predicted)^2)
-
-#-------------------------------------
+#Lasso
 dati= fill.na.num(train[,(sapply(train, class)=="integer")]) #rough na removal
 allenamento=data.matrix(dati[,-37])
 y=dati[,37]
@@ -205,17 +77,3 @@ lasso.pred=predict( lasso.mod, s=bestlam , newx=allenamento.test)
 mean((lasso.pred-y.test)^2)
 mse(lasso.pred,y.test)
 plot(lasso.pred,y.test)
-
-#----------------------------------
-alpha0.fit = cv.glmnet(miro.train, confalone.train, type.measure = "mse", alpha=0, family="gaussian") #cross-validation (cv) for finding optimal value for lambda, default: 10-fold validation. x and y are the two training sets. gaussian cuz we are doing linear regression
-alpha0.predicted = predict(alpha0.fit, s=alpha0.fit[["lambda.1se"]], newx=x.test)
-mean((y.test-alpha0.predicted)^2)
-
-
-miro.train=data.matrix(miro[train_rows,-1]) #gmlnet o come se chiama vuole una matrice non un dataframe!
-miro.test=data.matrix(miro[-train_rows,-1])
-confalone.train=data.matrix(confalone[train_rows,])
-confalone.test=data.matrix(confalone[-train_rows,])
-
-
-
