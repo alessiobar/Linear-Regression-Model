@@ -1,0 +1,91 @@
+library(readr)
+test <- read_csv("~/Desktop/test.csv")
+train <- read_csv("~/Desktop/train.csv")
+
+library(data.table)
+library(mltools)
+library(dummies)
+
+# remove response variable from training and merge with test set to ease the data transformation process
+data = rbind(train[, -c(length(train))], test)
+dim(data)
+
+# divide numerical and categorical variables
+numeric_attribute <- names(Filter(is.numeric,data))
+data_num <- data[numeric_attribute]
+dim(data)
+
+#Na values
+colSums(is.na(data))
+
+#Miscellaneous useless
+data["MiscFeature"] <- NULL
+# Street values are all equals
+data["Street"] <- NULL
+# Utilities values are all equals
+data["Utilities"] <- NULL
+#Conditions 2 are all equals
+data["Condition2"] <- NULL
+#Fence 
+data[["Fence"]] <- NULL
+#Pool
+data[["PoolQC"]] <- NULL
+#fireplace
+data[["FireplaceQu"]] <- NULL
+#Alley
+data[["Alley"]] <- NULL
+
+
+
+
+#NA for PoolQC means no pool
+data[["PoolQC"]][is.na(data[["PoolQC"]])] <- "None"
+#NA for MiscFeature means none
+data[["MiscFeature"]][is.na(data[["MiscFeature"]])] <- "None"
+#NA for Alley means no alley access
+data[["Alley"]][is.na(data[["Alley"]])] <- "None"
+#NA for Fence means no fence
+data[["Fence"]][is.na(data[["Fence"]])] <- "None"
+#NA for FireplaceQu means no fireplace
+data[["FireplaceQu"]][is.na(data[["FireplaceQu"]])] <- "None"
+#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data.
+data[["LotFrontage"]][is.na(data[["LotFrontage"]])] <- 69
+#For NAs in the garage factors, they mean that there is no garage
+data[["GarageYrBlt"]][is.na(data[["GarageYrBlt"]])] <- 0
+data[["GarageFinish"]][is.na(data[["GarageFinish"]])] <- "None"
+data[["GarageQual"]][is.na(data[["GarageQual"]])] <- "None"
+data[["GarageCond"]][is.na(data[["GarageCond"]])] <- "None"
+data[["GarageType"]][is.na(data[["GarageType"]])] <- "None"
+data[["GarageCars"]][is.na(data[["GarageCars"]])] <- 0
+data[["GarageArea"]][is.na(data[["GarageArea"]])] <- 0
+#For NAs in the basement factors, they mean that there is no basement
+data[["BsmtCond"]][is.na(data[["BsmtCond"]])] <- "None"
+data[["BsmtExposure"]] [is.na(data[["BsmtExposure"]])] <- "None"
+data[["BsmtQual"]][is.na(data[["BsmtQual"]])] <- "None"
+data[["BsmtFinType2"]][is.na(data[["BsmtFinType2"]])] <- "None"
+data[["BsmtFinType1"]][is.na(data[["BsmtFinType1"]])] <- "None"
+data[["BsmtFullBath"]][is.na(data[["BsmtFullBath"]])] <- 0
+data[["BsmtHalfBath"]][is.na(data[["BsmtHalfBath"]])] <- 0
+data[["BsmtFinSF1"]][is.na(data[["BsmtFinSF1"]])] <- 0
+data[["BsmtFinSF2"]][is.na(data[["BsmtFinSF2"]])] <- 0
+data[["BsmtUnfSF"]][is.na(data[["BsmtUnfSF"]])] <- 0
+data[["TotalBsmtSF"]][is.na(data[["TotalBsmtSF"]])] <- 0
+
+#NA for MasVnrType and MasVnrArea means no masory veneer
+data[["MasVnrType"]][is.na(data[["MasVnrType"]])] <- "None"
+data[["MasVnrArea"]][is.na(data[["MasVnrArea"]])] <- 0
+#For NAs in MSZoning, we fill in the most common type, RL
+data[["MSZoning"]][is.na(data[["MSZoning"]])] <- "RL"
+#For NAs in Utilities, we fill in the most common type, AllPub
+data[["Utilities"]][is.na(data[["Utilities"]])] <- "AllPub"
+#For NAs in Functional, we fill in the most common type, Typ
+data[["Functional"]][is.na(data[["Functional"]])] <- "Typ"
+#For NAs in exteriors, we will fill in "Other"
+data[["Exterior1st"]][is.na(data[["Exterior1st"]])] <- "Other"
+data[["Exterior2nd"]][is.na(data[["Exterior2nd"]])] <- "Other"
+#For NAs in Electrical, we fill in the most common type, SBrkr
+data[["Electrical"]][is.na(data[["Electrical"]])] <- "SBrkr"
+#For NAs in KitchenQual, we fill in the most common type, TA
+data[["KitchenQual"]][is.na(data[["KitchenQual"]])] <- "TA"
+#For NAs in SaleType, we fill in the most common type, WD
+data[["SaleType"]][is.na(data[["SaleType"]])] <- "WD"
