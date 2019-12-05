@@ -57,7 +57,7 @@ if(length(nzv_cols) > 0){
   data = data[, -nzv_cols]
 }
 
-#Lasso
+#Lasso 1 (fonte youtube)
 dati= fill.na.num(train[,(sapply(train, class)=="integer")]) #rough na removal
 allenamento=data.matrix(dati[,-37])
 y=dati[,37]
@@ -69,7 +69,7 @@ y.test = y[-train_rows]
 alpha0.fit = cv.glmnet(allenamento.train, y.train, type.measure = "mse", alpha=0, family="gaussian")
 alpha0.predicted = predict(alpha0.fit, s=alpha0.fit[["lambda.1se"]], newx=allenamento.test)
 mean((y.test-alpha0.predicted)^2)
-
+#Lass 2 (fonte libro)
 lasso.mod=glmnet(allenamento.train, y.train, alpha =1)
 cv.out=cv.glmnet(allenamento.train, y.train, alpha=1)
 bestlam=cv.out$lambda.min
