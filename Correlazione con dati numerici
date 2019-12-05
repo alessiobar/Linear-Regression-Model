@@ -1,0 +1,16 @@
+install.packages("ggally")
+library(GGally)
+numeric_attribute <- names(Filter(is.numeric,train))
+train_num <- train[numeric_attribute]
+
+a=ggcorr(train_num[1:37], low = 'darkgreen', mid ='#C3DE02', high='black', label = TRUE, label_size = 3, label_round = 2, label_alpha = FALSE, label_color ='white')$data
+temp = subset(a, x=="SalePrice")
+head(temp)
+Useful = subset(temp, abs(coefficient) > 0.05)
+head(Useful)
+View(Useful)
+  
+RigaUtile=Useful$y
+Dataset = data_num[, colnames(data_num) %in% RigaUtile]  
+train_num<- cbind(Dataset)
+Dataset <- NULL
