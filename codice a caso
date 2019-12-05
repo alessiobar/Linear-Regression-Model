@@ -57,6 +57,18 @@ if(length(nzv_cols) > 0){
   data = data[, -nzv_cols]
 }
 
+#Rough na remover
+fill.na.num = function(x){
+  for(i in 1:length(x)){
+    col = x[, i]
+    if(sum(is.na(col)) > 0){
+      col[is.na(col)] = median(col, na.rm = TRUE)
+    }
+    x[, i] = col
+  } 
+  return(x)
+}
+
 #Lasso 1 (fonte youtube)
 dati= fill.na.num(train[,(sapply(train, class)=="integer")]) #rough na removal
 allenamento=data.matrix(dati[,-37])
