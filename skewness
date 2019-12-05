@@ -1,0 +1,10 @@
+library(e1071) # skewness
+
+require(psych)
+# linear models assume normality from dependant variables 
+# transform any skewed data into normal
+skewed <- apply(df.numeric, 2, skewness)
+skewed <- skewed[(skewed > 0.8) | (skewed < -0.8)]
+
+kurtosis <- apply(df.numeric, 2, kurtosi)
+kurtosis <- kurtosis[(kurtosis > 3.0) | (kurtosis < -3.0)]
