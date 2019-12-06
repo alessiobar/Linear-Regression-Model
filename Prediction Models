@@ -1,4 +1,3 @@
-#questo blocco crea un dataset di soli valori numerici senza NA, sostituirlo con il dataset pulito
 library(caret)
 library(ggplot2)
 train = read.csv("train.csv")
@@ -25,9 +24,8 @@ model0 <- train(
   )
 )
 pred0=predict(model0, miro)
-plot(pred0)
 error0=(miro$SalePrice - pred0)
-plot(error0)
+mean((error0)^2)
 #----
 model1 <- train(
   SalePrice ~ ., miro,
@@ -38,63 +36,56 @@ model1 <- train(
   )
 )
 pred1=predict(model1, miro)
-plot(pred1)
 error1=(miro$SalePrice - pred1)
-plot(error1)
+mean((error1)^2)
 #-----------
 model2 <- train(SalePrice~., data = miro, 
                 method = "ridge",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred2=predict(model2, miro)
-plot(pred2)
 error2=(miro$SalePrice - pred2)
-plot(error2)
+mean((error2)^2)
 #-----
 model3 <- train(SalePrice~., data = miro, 
                 method = "lasso",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred3=predict(model3, miro)
-plot(pred3)
 error3=(miro$SalePrice - pred3)
-plot(error3)
+mean((error3)^2)
 #---
 model4 <- train(SalePrice~., data = miro, 
                 method = "enet",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred4=predict(model4, miro)
-plot(pred4)
 error4=(miro$SalePrice - pred4)
-plot(error4)
+mean((error4)^2)
 #-----------
 model5 <- train(SalePrice~., data = miro, 
                 method = "gbm",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred5=predict(model5, miro)
-plot(pred5)
 error5=(miro$SalePrice - pred5)
-plot(error5)
+mean((error5)^2)
 #xgbDART (Dropouts meet Multiple Additive Regression Tree)
 model6 <- train(SalePrice~., data = miro, 
                 method = "xgbDART",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred6=predict(model6, miro)
-plot(pred6)
 error6=(miro$SalePrice - pred6)
-plot(error6)
+mean((error6)^2)
 #xgbTree
 model7 <- train(SalePrice~., data = miro, 
                 method = "xgbTree",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred7=predict(model7, miro)
-plot(pred7)
 error7=(miro$SalePrice - pred7)
-plot(error7)
+mean((error7)^2)
 
 #xgbLinear
 model8 <- train(SalePrice~., data = miro, 
@@ -102,10 +93,9 @@ model8 <- train(SalePrice~., data = miro,
                   method = "cv", number = 5,
                   verboseIter = TRUE))
 pred8=predict(model8, miro)
-plot(pred8)
 error8=(miro$SalePrice - pred8)
-plot(error8)
-
+mean((error8)^2)
+#---------------
 plot0=ggplot(miro,aes(pred0, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Linear Regression ') + ggtitle("Linear Regression: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
