@@ -1,0 +1,18 @@
+single.col.outlier<-function(miro, col){
+  tempp=miro
+  a=boxplot.stats(miro[[col]])
+  b=as.factor(a$out)
+  c=levels(b)
+  for(x in seq(1:length(miro[[col]]))){
+    if(miro[[col]][x]>boxplot.stats(miro[[col]])$stats[4]){
+      tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[4]}
+    else if(miro[[col]][x]<boxplot.stats(miro[[col]])$stats[2]){tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[2]}
+  }
+  return(tempp)
+}
+tr=miro
+for(colonna in colnames(tr[1:length(miro)])){
+  print(colonna)
+  tr= single.col.outlier(tr,colonna)
+}
+summary(tr[30:35])
