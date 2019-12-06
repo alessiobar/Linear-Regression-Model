@@ -1,4 +1,4 @@
-#------------------------questa prima sezione va sostituita dal train_data pulito
+#questo blocco crea un dataset di soli valori numerici senza NA, sostituirlo con il dataset pulito
 library(caret)
 library(ggplot2)
 train = read.csv("train.csv")
@@ -87,23 +87,23 @@ plot(pred6)
 error6=(miro$SalePrice - pred6)
 plot(error6)
 #xgbTree
-model7 <- train(medv~., data = Boston, 
+model7 <- train(SalePrice~., data = miro, 
                 method = "xgbTree",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
-pred7=predict(model7, Boston)
+pred7=predict(model7, miro)
 plot(pred7)
-error7=(Boston$medv - pred7)
+error7=(miro$SalePrice - pred7)
 plot(error7)
 
 #xgbLinear
-model8 <- train(medv~., data = Boston, 
+model8 <- train(SalePrice~., data = miro, 
                 method = "xgbLinear",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
-pred8=predict(model8, Boston)
+pred8=predict(model8, miro)
 plot(pred8)
-error8=(Boston$medv - pred8)
+error8=(miro$SalePrice - pred8)
 plot(error8)
 
 plot0=ggplot(miro,aes(pred0, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
@@ -134,11 +134,11 @@ plot6=ggplot(miro,aes(pred6, miro$SalePrice)) + geom_point(color = "darkred", al
   geom_smooth(method=lm)+ ggtitle('Extreme Gradient Boosting') + ggtitle("Extreme Gradient Boosting (DART): Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot6
-plot7=ggplot(Boston,aes(pred7, Boston$medv)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot7=ggplot(miro,aes(pred7, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Extreme Gradient Boosting') + ggtitle("Extreme Gradient Boosting (DART): Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot7
-plot8=ggplot(Boston,aes(pred8, Boston$medv)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot8=ggplot(miro,aes(pred8, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Extreme Gradient Boosting') + ggtitle("Extreme Gradient Boosting (DART): Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot8
