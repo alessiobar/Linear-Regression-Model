@@ -1,3 +1,4 @@
+set.seed(222)
 library(caret)
 library(ggplot2)
 train = read.csv("train.csv")
@@ -15,7 +16,7 @@ fill.na.num = function(x){
 }
 miro=fill.na.num(miro)
 #----------------------------after data is prepared:
-train_rows=sample(1:1100, .70*1100) #sample funct, randomly selects numbers between 1 and n, selection 66% i.e. 2/3 del dataset
+train_rows=sample(1:1100, .70*1100)
 y=miro[length(miro)]
 miro=miro[,-length(miro)]
 x.train= miro[train_rows,]
@@ -27,13 +28,16 @@ train_set[,"SalePrice"] <- y.train
 test_set=x.test
 test_set[,"SalePrice"] <- y.test
 
+fitControl <- trainControl(
+  method = "repeatedcv", #10-fold cv repeated 10 times
+  number = 10,
+  repeats = 10, 
+  verboseIter = TRUE)
+
 model0 <- train(
   SalePrice ~ ., train_set,
   method = "lm",
-  trControl = trainControl(
-    method = "cv", number = 5,
-    verboseIter = TRUE
-  )
+  trControl = fitControl
 )
 pred0=predict(model0, test_set)
 error0=(y.test - pred0)
@@ -43,7 +47,8 @@ model1 <- train(
   SalePrice ~ ., train_set,
   method = "rf",
   trControl = trainControl(
-    method = "cv", number = 5,
+    method = "repeatedcv", number = 5,
+    repeats = 1,
     verboseIter = TRUE
   )
 )
@@ -51,36 +56,33 @@ pred1=predict(model1, test_set)
 error1=(y.test - pred1)
 mse1=mean((error1)^2)
 #-----------
-model2 <- train(SalePrice~., data = miro, 
-                method = "ridge",trControl = trainControl(
-                  method = "cv", number = 5,
-                  verboseIter = TRUE))
-pred2=predict(model2, miro)
-error2=(miro$SalePrice - pred2)
+model2 <- train(SalePrice~., train_set, 
+                method = "ridge",trControl = fitControl)
+
+pred2=predict(model2, test_set)
+error2=(y.test - pred2)
 mse2=mean((error2)^2)
 #-----
-model3 <- train(SalePrice~., data = miro, 
-                method = "lasso",trControl = trainControl(
-                  method = "cv", number = 5,
-                  verboseIter = TRUE))
-pred3=predict(model3, miro)
-error3=(miro$SalePrice - pred3)
+model3 <- train(SalePrice~., train_set, 
+                method = "lasso",trControl = fitControl)
+
+pred3=predict(model3, test_set)
+error3=(y.test - pred3)
 mse3=mean((error3)^2)
 #---
-model4 <- train(SalePrice~., data = miro, 
-                method = "enet",trControl = trainControl(
-                  method = "cv", number = 5,
-                  verboseIter = TRUE))
-pred4=predict(model4, miro)
-error4=(miro$SalePrice - pred4)
+model4 <- train(SalePrice~., train_set, 
+                method = "enet",trControl = fitControl)
+
+pred4=predict(model4, test_set)
+error4=(y.test - pred4)
 mse4=mean((error4)^2)
 #-----------
-model5 <- train(SalePrice~., data = miro, 
+model5 <- train(SalePrice~., train_set, 
                 method = "gbm",trControl = trainControl(
-                  method = "cv", number = 5,
+                  method = "repeatedcv", number = 5, repeats = 3,
                   verboseIter = TRUE))
-pred5=predict(model5, miro)
-error5=(miro$SalePrice - pred5)
+pred5=predict(model5, test_set)
+error5=(y.test - pred5)
 mse5=mean((error5)^2)
 #xgbDART (Dropouts meet Multiple Additive Regression Tree)
 model6 <- train(SalePrice ~ ., data=train_set, 
@@ -91,21 +93,21 @@ pred6=predict(model6, test_set)
 error6=(y.test - pred6)
 mse6=mean((error6)^2)
 #xgbTree
-model7 <- train(SalePrice~., data = miro, 
+model7 <- train(SalePrice~., train_set, 
                 method = "xgbTree",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
-pred7=predict(model7, miro)
-error7=(miro$SalePrice - pred7)
+pred7=predict(model7, test_set)
+error7=(y.test - pred7)
 mse7=mean((error7)^2)
 
 #xgbLinear
-model8 <- train(SalePrice~., data = miro, 
+model8 <- train(SalePrice~., train_set, 
                 method = "xgbLinear",trControl = trainControl(
                   method = "cv", number = 5,
                   verboseIter = TRUE))
-pred8=predict(model8, miro)
-error8=(miro$SalePrice - pred8)
+pred8=predict(model8, test_set)
+error8=(y.test - pred8)
 ms8=mean((error8)^2)
 #---------------
 plot0=ggplot(test_set,aes(pred0, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
@@ -116,19 +118,19 @@ plot1=ggplot(test_set,aes(pred0, y.test)) + geom_point(color = "darkred", alpha 
   geom_smooth(method=lm)+ ggtitle('Random Forest') + ggtitle("Random Forest: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot1
-plot2=ggplot(miro,aes(pred2, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot2=ggplot(test_set,aes(pred2, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Ridge') + ggtitle("Ridge: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot2
-plot3=ggplot(miro,aes(pred2, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot3=ggplot(test_set,aes(pred2, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Lasso') + ggtitle("Lasso: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot3
-plot4=ggplot(miro,aes(pred4, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot4=ggplot(test_set,aes(pred4, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Elastic Net') + ggtitle("Elastic Net: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot4
-plot5=ggplot(miro,aes(pred5, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot5=ggplot(test_set,aes(pred5, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Gradient Boosting') + ggtitle("Gradient Boosting: Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot5
@@ -140,12 +142,11 @@ plot7=ggplot(test_set,aes(pred0, y.test)) + geom_point(color = "darkred", alpha 
   geom_smooth(method=lm)+ ggtitle('Extreme Gradient Boosting') + ggtitle("Extreme Gradient Boosting (DART): Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot7
-plot8=ggplot(miro,aes(pred8, miro$SalePrice)) + geom_point(color = "darkred", alpha = 0.5) + 
+plot8=ggplot(test_set,aes(pred8, y.test)) + geom_point(color = "darkred", alpha = 0.5) + 
   geom_smooth(method=lm)+ ggtitle('Extreme Gradient Boosting') + ggtitle("Extreme Gradient Boosting (DART): Prediction vs Test Data") +
   xlab("Predecited Output ") + ylab("Observed Output")
 plot8
 
 library(gridExtra)
 grid.arrange(plot0,plot1,plot2,plot3,plot4,plot5)#,plot6)
-
-bbbb=c(mse0,mse1,mse2,mse3,mse4,mse5)
+grid.arrange(plot0,plot1,plot5)
