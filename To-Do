@@ -1,16 +1,16 @@
 Data Cleaning:
   - Remove Na from train and test 
   - Remove predictors with more than 15% NA 
-  - Remove Outlier from train and test (using only data from train!!!!!!!!)
+  - Remove Outlier from train and test (using only data from train)
   - Remove NearZeroVariance columns
-  - Normalization
-  - Dummy Variable (!!!!!!!!!!!!)
+  - Normalization(interval) and Centering(i.e. skeweness)
+  - Dummy Variable (using OneHot and trying to find better approaches)
 
 Feture Selection:
   - Remove low correlated predictors
   - Lasso for selectiong predictors
   - Principal Component Analysis
-  - 
+  - Random Forest Predictors Importance
   
  Models: (capire quali posso fare sulle categoriche)
   - Linear Model
@@ -19,5 +19,8 @@ Feture Selection:
   - Gradient Boosting Machine
   - Xgboosting
   
-  Fare un bel pdf con tante donne nude per trappo!!!
+  PDF:
+    pass
+    
+  Settare un cazzo di seed
   
