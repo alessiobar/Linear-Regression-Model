@@ -1,35 +1,39 @@
-single.col.outlier<-function(miro, col){
-  tempp=miro
-  a=boxplot.stats(miro[[col]])
-  b=as.factor(a$out)
-  c=levels(b)
-  for(x in seq(1:length(miro[[col]]))){
-    if(miro[[col]][x]>boxplot.stats(miro[[col]])$stats[4]){
-      tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[4]}
-    else if(miro[[col]][x]<boxplot.stats(miro[[col]])$stats[2]){tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[2]}
-  }
-  return(tempp)
+train = read.csv("train.csv")
+test = read.csv("test.csv")
+train_num=train[, (sapply(train, class) == "integer")]
+test_num=test[, (sapply(test, class) == "integer")]
+
+fill.na.num = function(x){
+  for(i in 1:length(x)){
+    col = x[, i]
+    if(sum(is.na(col)) > 0){
+      col[is.na(col)] = median(col, na.rm = TRUE)
+    }
+    x[, i] = col
+  } 
+  return(x)
 }
-tr=miro
-for(colonna in colnames(tr[1:length(miro)])){
-  print(colonna)
-  tr= single.col.outlier(tr,colonna)
-}
-#----outlier dal test
-single.col.outlier<-function(miro, test, col){  #miro deve essere quello originale non tr ovviamente
-  tempp=miro
-  a=boxplot.stats(miro[[col]])
+train_num=fill.na.num(train_num)
+test_num=fill.na.num(test_num)
+#OUTLIERS
+single.col.out<-function(train_num, test, col){  #on train: (train_num, train_num, col)| on test: (train_num, test, col) obv
+  a=boxplot.stats(train_num[[col]])
   b=as.factor(a$out)
   c=levels(b)
   for(x in seq(1:length(test[[col]]))){
-    if(test[[col]][x]>boxplot.stats(miro[[col]])$stats[4]){
-      test[[col]][x]=boxplot.stats(miro[[col]])$stats[4]}
-    else if(test[[col]][x]<boxplot.stats(miro[[col]])$stats[2]){test[[col]][x]=boxplot.stats(miro[[col]])$stats[2]}
+    if(test[[col]][x]>boxplot.stats(train_num[[col]])$stats[4]){
+      test[[col]][x]=boxplot.stats(train_num[[col]])$stats[4]}
+    else if(test[[col]][x]<boxplot.stats(train_num[[col]])$stats[2]){test[[col]][x]=boxplot.stats(train_num[[col]])$stats[2]}
   }
   return(test)
 }
-
-for(colonna in colnames(test[1:length(test)])){
+# Test first necessarily (otherwise my train would change being unable to change test with his outliers values)
+for(colonna in colnames(test_num[1:length(test_num)])){
   print(colonna)
-  test= single.col.outlier(miro,test,colonna)
+  test_num= single.col.out(train_num,test_num,colonna)
+}
+#Train
+for(colonna in colnames(train_num[1:length(train_num)])){
+  print(colonna)
+  train_num= single.col.out(train_num, train_num, colonna)
 }
