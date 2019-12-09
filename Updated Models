@@ -1,14 +1,18 @@
-library(caret)
+set.seed(123)
 dummy_data_def <- read_csv("dummy_data_def.csv")
 dummy_data_def = dummy_data_def[,-1]
-train = read.csv("train.csv")
+train = read.csv("train.csv")[80]
+dummy_data_def[,"SalePrice"] <- train
+dummy_data_def=as.data.frame(scale(dummy_data_def))
+#dummy_data_def=as.data.frame(dummy_data_def)
+library(caret)
 
 train_rows=sample(1:1100, .70*1100)
-y=train[,80]
-train_set= dummy_data_def[train_rows,]
-test_set = dummy_data_def[-train_rows,]
-y.train= y[train_rows]
-y.test = y[-train_rows]
+y=dummy_data_def[length(dummy_data_def)]
+train_set= dummy_data_def[train_rows,-length(dummy_data_def)]
+test_set = dummy_data_def[-train_rows,-length(dummy_data_def)]
+y.train= y[[1]][train_rows]
+y.test = y[[1]][-train_rows]
 train_set=as.data.frame(train_set)
 test_set=as.data.frame(test_set)
 train_set[,"SalePrice"] <- y.train
@@ -43,6 +47,7 @@ model1 <- train(
 pred1=predict(model1, test_set)
 error1=(y.test - pred1)
 mse1=mean((error1)^2)
+#MAPE(model1, test_set)
 #-----------
 model2 <- train(SalePrice~., train_set, 
                 method = "ridge",trControl = fitControl)
@@ -139,9 +144,3 @@ library(gridExtra)
 grid.arrange(plot0,plot1,plot2,plot3,plot4,plot5)#,plot6)
 grid.arrange(plot0,plot1,plot5)
 bbbb=c(mse0,mse1,mse2,mse3,mse4,mse5)
-
-
-
-
-
-
