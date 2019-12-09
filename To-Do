@@ -1,6 +1,6 @@
 Data Cleaning:
+  - Remove predictors with more than 15% NA
   - Remove Na from train and test (with data understanding)
-  - Remove predictors with more than 15% NA 
   - Remove Outlier from train and test (using only data from train)
   - Remove NearZeroVariance columns
   - Normalization(interval) and Centering(i.e. skeweness)
