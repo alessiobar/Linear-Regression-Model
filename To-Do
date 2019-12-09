@@ -24,6 +24,9 @@ Feture Selection:
   
   PDF:
     pass
-    
-  Settare un cazzo di seed
+  Cose:
+  -Perhaps the most simple, quick and direct way to mean-center your data is by using the function scale(). By default, 
+  this function will standardize the data (mean zero, unit variance). To indicate that we just want to subtract the mean, we 
+  need to turn off the argument scale = FALSE.
+  -Settare un cazzo di seed
   
