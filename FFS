@@ -1,0 +1,35 @@
+single.col.outlier<-function(miro, col){
+  tempp=miro
+  a=boxplot.stats(miro[[col]])
+  b=as.factor(a$out)
+  c=levels(b)
+  for(x in seq(1:length(miro[[col]]))){
+    if(miro[[col]][x]>boxplot.stats(miro[[col]])$stats[4]){
+      tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[4]}
+    else if(miro[[col]][x]<boxplot.stats(miro[[col]])$stats[2]){tempp[[col]][x]=boxplot.stats(miro[[col]])$stats[2]}
+  }
+  return(tempp)
+}
+tr=miro
+for(colonna in colnames(tr[1:length(miro)])){
+  print(colonna)
+  tr= single.col.outlier(tr,colonna)
+}
+#----outlier dal test
+single.col.outlier<-function(miro, test, col){  #miro deve essere quello originale non tr ovviamente
+  tempp=miro
+  a=boxplot.stats(miro[[col]])
+  b=as.factor(a$out)
+  c=levels(b)
+  for(x in seq(1:length(test[[col]]))){
+    if(test[[col]][x]>boxplot.stats(miro[[col]])$stats[4]){
+      test[[col]][x]=boxplot.stats(miro[[col]])$stats[4]}
+    else if(test[[col]][x]<boxplot.stats(miro[[col]])$stats[2]){test[[col]][x]=boxplot.stats(miro[[col]])$stats[2]}
+  }
+  return(test)
+}
+
+for(colonna in colnames(test[1:length(test)])){
+  print(colonna)
+  test= single.col.outlier(miro,test,colonna)
+}
