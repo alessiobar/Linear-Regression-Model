@@ -1,3 +1,5 @@
+Data Understanding:
+  Year va considerata come numerica??
 Data Cleaning:
   - Remove predictors with more than 15% NA
   - Remove Na from train and test (with data understanding)
