@@ -1,0 +1,23 @@
+Data Cleaning:
+  - Remove Na from train and test 
+  - Remove predictors with more than 15% NA 
+  - Remove Outlier from train and test (using only data from train!!!!!!!!)
+  - Remove NearZeroVariance columns
+  - Normalization
+  - Dummy Variable (!!!!!!!!!!!!)
+
+Feture Selection:
+  - Remove low correlated predictors
+  - Lasso for selectiong predictors
+  - Principal Component Analysis
+  - 
+  
+ Models: (capire quali posso fare sulle categoriche)
+  - Linear Model
+  - Random Forest
+  - ?Ridge/Lasso/Elastic-net
+  - Gradient Boosting Machine
+  - Xgboosting
+  
+  Fare un bel pdf con tante donne nude per trappo!!!
+  
