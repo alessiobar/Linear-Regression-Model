@@ -1,33 +1,35 @@
 Data Understanding:
-  Year va considerata come numerica??
-  normalizzare è meglio per lasso?
+Scegliere qualceh metrica per confrontare i modelli (mape), per feature selection co tipo rf capire quunato avrebbe fittato
+normalizzare è meglio per lasso?
 Data Cleaning:
   - Remove predictors with more than 15% NA
-  - Remove Na from train and test (with data understanding)
+  - Missing Imputation--> Na from train and test (with data understanding) sostituire con la Mode NON LA MEAN
   - Remove Outlier from train and test (using only data from train)
   - Remove NearZeroVariance columns
-  - Normalization(interval) and Centering(i.e. skeweness)
-  - Dummy Variable (using OneHot and trying to find better approaches)
+  ##- Normalization(interval) and Centering(i.e. skeweness)
+  - Dummy Variable (using OneHot and trying to find better approaches) #meglio sarebbe MCA (tipo pca) ma per le categoriche 
+  .. FEATURE ENGINEERING ()
 
 Feture Selection:
-  - Remove low correlated predictors w.r.t response
+  - Remove low correlated predictors w.r.t response !!!! rf lo potresti peggiorare
   - Remove highly correlated predictors leaving just one of them
-  - Lasso for selectiong predictors (threshold?)
-  - Principal Component Analysis
-  - Random Forest Predictors Importance
-  
+  - Lasso for selectiong predictors (threshold?) !!!!
+  - Xgboost for selectiong predictors dovrebbe funge co anche senza dummy (prova entrambe)
+    [prova a fare un unione se so poche, intesezione se so troppe]
+  - Random Forest Predictors Importance SU TUTTO IL TRAIN (p) funge co anche senza dummy (prova entrambe)
+Dimensionality reduction:
+ - PCA (scegli numero di componenti, della grandezza di quelle della F.S.)
+ 
  Models: (capire quali posso fare sulle categoriche)
   - Linear Model
-  - Random Forest
-  - ?Ridge/Lasso/Elastic-net
+  - Ridge/Lasso/Elastic-net
+  fare senza selection e con selection e confronta
   - Gradient Boosting Machine
+  - Random Forest Predictors Importance SU TUTTO IL TRAIN (p)
   - Xgboosting
-  
-  PDF:
-    pass
+ 
   Cose:
-  -Perhaps the most simple, quick and direct way to mean-center your data is by using the function scale(). By default, 
-  this function will standardize the data (mean zero, unit variance). To indicate that we just want to subtract the mean, we 
-  need to turn off the argument scale = FALSE.
+ Preprocess sul train center scale e volendo pca solo su numeriche, poi da applicare al test
+ poi c'è il predict() sul train e test.
   -Settare un cazzo di seed
-  
+  -Year va considerata come numerica??
