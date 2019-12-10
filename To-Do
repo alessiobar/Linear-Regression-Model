@@ -12,7 +12,7 @@ Data Cleaning:
 Feture Selection:
   - Remove low correlated predictors w.r.t response
   - Remove highly correlated predictors leaving just one of them
-  - Lasso for selectiong predictors
+  - Lasso for selectiong predictors (threshold?)
   - Principal Component Analysis
   - Random Forest Predictors Importance
   
