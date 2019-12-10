@@ -1,6 +1,6 @@
 Data Understanding:
-Scegliere qualche metrica per confrontare i modelli (mape... cercare la migliore), per feature selection co tipo rf capire quanto
-avrebbe fittato
+Scegliere qualche metrica per confrontare i modelli (mape... cercare la migliore), e.g. per feature selection co tipo rf 
+capire quanto avrebbe fittato
 fare una rf al dataset originale e capire quanto verrebbe
 Data Cleaning:
   - Remove predictors with more than 15% NA
