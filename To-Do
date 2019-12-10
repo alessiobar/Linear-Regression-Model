@@ -12,15 +12,15 @@ Data Cleaning:
   .. FEATURE ENGINEERING ()
 
 Feture Selection:
-  - Remove low correlated predictors w.r.t response !!!! non cosideri i gruppi, rf lo potresti peggiorare
+  ##- Remove low correlated predictors w.r.t response !!!! non cosideri i gruppi, rf lo potresti peggiorare
   - Merging highly correlated predictors
   - Lasso for selectiong predictors
   - Xgboost for selectiong predictors [dovrebbe funge co anche senza dummy (prova entrambe)
   - Random Forest Predictors Importance SU TUTTO IL TRAIN (p) [funge co anche senza dummy (prova entrambe)
   [di ste ultime tre prova a fare un unione se so poche, intesezione se so troppe]
 
-{Dimensionality reduction:
- - avendo tempo PCA (scegli numero di componenti, della grandezza di quelle della F.S.)}
+##{Dimensionality reduction:
+ ##- avendo tempo PCA (scegli numero di componenti, della grandezza di quelle della F.S.)}
  
  Models: (capire quali posso fare sulle categoriche)
   - Linear Model
