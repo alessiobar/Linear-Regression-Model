@@ -10,7 +10,8 @@ Data Cleaning:
   - Dummy Variable (using OneHot and trying to find better approaches)
 
 Feture Selection:
-  - Remove low correlated predictors
+  - Remove low correlated predictors w.r.t response
+  - Remove highly correlated predictors leaving just one of them
   - Lasso for selectiong predictors
   - Principal Component Analysis
   - Random Forest Predictors Importance
