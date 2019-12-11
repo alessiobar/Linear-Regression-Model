@@ -13,7 +13,6 @@ dim(data)
 #Na values
 colSums(is.na(data))
 
-
 #NA for PoolQC means no pool
 data[["PoolQC"]][is.na(data[["PoolQC"]])] <- "None"
 #NA for MiscFeature means none
@@ -315,7 +314,6 @@ b <- mean(a)
 sqrt(b)
 ss
 b
-
 
 model1 <- train(
   SalePrice ~., data= train, method = "xgbTree",importance=T,
