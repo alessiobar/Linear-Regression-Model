@@ -1,103 +1,135 @@
+library(readr)
+test <- read_csv("~/Desktop/test.csv")
+train <- read_csv("~/Desktop/train.csv")
+
 library(data.table)
 library(mltools)
 library(dummies)
-library(corrplot)
-library(caret)
-library(readr)
 
-test <- read_csv("test.csv")
-train <- read_csv("train.csv")
-train_num=train[, (sapply(train, class) == "integer")]
-test_num=test[, (sapply(test, class) == "integer")]
-
-#NA REPLACEMENT
-#NA for PoolQC means no pool
-train[["PoolQC"]][is.na(train[["PoolQC"]])] <- "None"
-#NA for MiscFeature means none
-train[["MiscFeature"]][is.na(train[["MiscFeature"]])] <- "None"
-#NA for Alley means no alley access
-train[["Alley"]][is.na(train[["Alley"]])] <- "None"
-#NA for Fence means no fence
-train[["Fence"]][is.na(train[["Fence"]])] <- "None"
-#NA for FireplaceQu means no fireplace
-train[["FireplaceQu"]][is.na(train[["FireplaceQu"]])] <- "None"
-#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data. 
-train[["LotFrontage"]][is.na(train[["LotFrontage"]])] <- 69 #summary(train[["LotFrontage"]])[["Mean"]]
-#For NAs in the garage factors, they mean that there is no garage
-train[["GarageYrBlt"]][is.na(train[["GarageYrBlt"]])] <- 0
-train[["GarageFinish"]][is.na(train[["GarageFinish"]])] <- "None"
-train[["GarageQual"]][is.na(train[["GarageQual"]])] <- "None"
-train[["GarageCond"]][is.na(train[["GarageCond"]])] <- "None"
-train[["GarageType"]][is.na(train[["GarageType"]])] <- "None"
-train[["GarageCars"]][is.na(train[["GarageCars"]])] <- 0
-train[["GarageArea"]][is.na(train[["GarageArea"]])] <- 0
-#For NAs in the basement factors, they mean that there is no basement
-train[["BsmtCond"]][is.na(train[["BsmtCond"]])] <- "None"
-train[["BsmtExposure"]] [is.na(train[["BsmtExposure"]])] <- "None"
-train[["BsmtQual"]][is.na(train[["BsmtQual"]])] <- "None"
-train[["BsmtFinType2"]][is.na(train[["BsmtFinType2"]])] <- "None"
-train[["BsmtFinType1"]][is.na(train[["BsmtFinType1"]])] <- "None"
-train[["BsmtFullBath"]][is.na(train[["BsmtFullBath"]])] <- 0
-train[["BsmtHalfBath"]][is.na(train[["BsmtHalfBath"]])] <- 0
-train[["BsmtFinSF1"]][is.na(train[["BsmtFinSF1"]])] <- 0
-train[["BsmtFinSF2"]][is.na(train[["BsmtFinSF2"]])] <- 0
-train[["BsmtUnfSF"]][is.na(train[["BsmtUnfSF"]])] <- 0
-train[["TotalBsmtSF"]][is.na(train[["TotalBsmtSF"]])] <- 0
-#NA for MasVnrType and MasVnrArea means no masory veneer
-train[["MasVnrType"]][is.na(train[["MasVnrType"]])] <- "None"
-train[["MasVnrArea"]][is.na(train[["MasVnrArea"]])] <- 0
-#For NAs in MSZoning, we fill in the most common type, RL
-train[["MSZoning"]][is.na(train[["MSZoning"]])] <- "RL"
-#For NAs in Utilities, we fill in the most common type, AllPub
-train[["Utilities"]][is.na(train[["Utilities"]])] <- "AllPub"
-#For NAs in Functional, we fill in the most common type, Typ
-train[["Functional"]][is.na(train[["Functional"]])] <- "Typ"
-#For NAs in exteriors, we will fill in "Other"
-train[["Exterior1st"]][is.na(train[["Exterior1st"]])] <- "Other"
-train[["Exterior2nd"]][is.na(train[["Exterior2nd"]])] <- "Other"
-#For NAs in Electrical, we fill in the most common type, SBrkr
-train[["Electrical"]][is.na(train[["Electrical"]])] <- "SBrkr"
-#For NAs in KitchenQual, we fill in the most common type, TA
-train[["KitchenQual"]][is.na(train[["KitchenQual"]])] <- "TA"
-#For NAs in SaleType, we fill in the most common type, WD
-train[["SaleType"]][is.na(train[["SaleType"]])] <- "WD"
+# remove response variable from training and merge with test set to ease the data transformation process
+data = rbind(train[, -c(length(train))], test)
+dim(data)
 
 #Na values
-colSums(is.na(train))
+colSums(is.na(data))
+
+
+#NA for PoolQC means no pool
+data[["PoolQC"]][is.na(data[["PoolQC"]])] <- "None"
+#NA for MiscFeature means none
+data[["MiscFeature"]][is.na(data[["MiscFeature"]])] <- "None"
+#NA for Alley means no alley access
+data[["Alley"]][is.na(data[["Alley"]])] <- "None"
+#NA for Fence means no fence
+data[["Fence"]][is.na(data[["Fence"]])] <- "None"
+#NA for FireplaceQu means no fireplace
+data[["FireplaceQu"]][is.na(data[["FireplaceQu"]])] <- "None"
+#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data.
+data[["LotFrontage"]][is.na(data[["LotFrontage"]])] <- 69
+#For NAs in the garage factors, they mean that there is no garage
+data[["GarageYrBlt"]][is.na(data[["GarageYrBlt"]])] <- 0
+data[["GarageFinish"]][is.na(data[["GarageFinish"]])] <- "None"
+data[["GarageQual"]][is.na(data[["GarageQual"]])] <- "None"
+data[["GarageCond"]][is.na(data[["GarageCond"]])] <- "None"
+data[["GarageType"]][is.na(data[["GarageType"]])] <- "None"
+data[["GarageCars"]][is.na(data[["GarageCars"]])] <- 0
+data[["GarageArea"]][is.na(data[["GarageArea"]])] <- 0
+#For NAs in the basement factors, they mean that there is no basement
+data[["BsmtCond"]][is.na(data[["BsmtCond"]])] <- "None"
+data[["BsmtExposure"]] [is.na(data[["BsmtExposure"]])] <- "None"
+data[["BsmtQual"]][is.na(data[["BsmtQual"]])] <- "None"
+data[["BsmtFinType2"]][is.na(data[["BsmtFinType2"]])] <- "None"
+data[["BsmtFinType1"]][is.na(data[["BsmtFinType1"]])] <- "None"
+data[["BsmtFullBath"]][is.na(data[["BsmtFullBath"]])] <- 0
+data[["BsmtHalfBath"]][is.na(data[["BsmtHalfBath"]])] <- 0
+data[["BsmtFinSF1"]][is.na(data[["BsmtFinSF1"]])] <- 0
+data[["BsmtFinSF2"]][is.na(data[["BsmtFinSF2"]])] <- 0
+data[["BsmtUnfSF"]][is.na(data[["BsmtUnfSF"]])] <- 0
+data[["TotalBsmtSF"]][is.na(data[["TotalBsmtSF"]])] <- 0
+
+#NA for MasVnrType and MasVnrArea means no masory veneer
+data[["MasVnrType"]][is.na(data[["MasVnrType"]])] <- "None"
+data[["MasVnrArea"]][is.na(data[["MasVnrArea"]])] <- 0
+#For NAs in MSZoning, we fill in the most common type, RL
+data[["MSZoning"]][is.na(data[["MSZoning"]])] <- "RL"
+#For NAs in Utilities, we fill in the most common type, AllPub
+data[["Utilities"]][is.na(data[["Utilities"]])] <- "AllPub"
+#For NAs in Functional, we fill in the most common type, Typ
+data[["Functional"]][is.na(data[["Functional"]])] <- "Typ"
+#For NAs in exteriors, we will fill in "Other"
+data[["Exterior1st"]][is.na(data[["Exterior1st"]])] <- "Other"
+data[["Exterior2nd"]][is.na(data[["Exterior2nd"]])] <- "Other"
+#For NAs in Electrical, we fill in the most common type, SBrkr
+data[["Electrical"]][is.na(data[["Electrical"]])] <- "SBrkr"
+#For NAs in KitchenQual, we fill in the most common type, TA
+data[["KitchenQual"]][is.na(data[["KitchenQual"]])] <- "TA"
+#For NAs in SaleType, we fill in the most common type, WD
+data[["SaleType"]][is.na(data[["SaleType"]])] <- "WD"
+
+
+#Na values
+colSums(is.na(data))
+
 
 #Miscellaneous useless
-train["MiscFeature"] <- NULL
+data["MiscFeature"] <- NULL
 # Street values are all equals
-train["Street"] <- NULL
+data["Street"] <- NULL
 # Utilities values are all equals
-train["Utilities"] <- NULL
+data["Utilities"] <- NULL
 #Conditions 2 are all equals
-train["Condition2"] <- NULL
+data["Condition2"] <- NULL
 #Fence 
-train[["Fence"]] <- NULL
+data[["Fence"]] <- NULL
 #Pool
-train[["PoolQC"]] <- NULL
+data[["PoolQC"]] <- NULL
 #fireplace
-train[["FireplaceQu"]] <- NULL
+data[["FireplaceQu"]] <- NULL
 #Alley
-train[["Alley"]] <- NULL
+data[["Alley"]] <- NULL
 
-#NA Replacement
-fill.na.num = function(x){
-  for(i in 1:length(x)){
-    col = x[, i]
-    if(sum(is.na(col)) > 0){
-      col[is.na(col)] = median(col, na.rm = TRUE)
-    }
-    x[, i] = col
-  } 
-  return(x)
-}
 
-train_num=fill.na.num(train_num)
-test_num=fill.na.num(test_num)
+#-------------------------
 
-#Outliers 
+
+#Delete non-zero variance variables
+library(caret)
+nzv_cols = nearZeroVar(data)
+names(data[nzv_cols])
+if(length(nzv_cols) > 0) 
+data = data[, -nzv_cols]
+
+#-------------------
+#Numeric factors that should be categorical
+data[["MoSold"]] <- factor(data[["MoSold"]])
+data[["GarageYrBlt"]] <- factor(data[["GarageYrBlt"]])
+data[["MSSubClass"]] <- factor(data[["MSSubClass"]])
+
+
+
+#Categorical factors that should be numeric
+data[["ExterQual"]] <- as.numeric(factor(data[["ExterQual"]], levels=c("None","Po","Fa", "TA", "Gd", "Ex")))
+data[["ExterCond"]] <- as.numeric(factor(data[["ExterCond"]], levels=c("None","Po","Fa", "TA", "Gd", "Ex")))
+data[["BsmtQual"]] <- as.numeric(factor(data[["BsmtQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["BsmtExposure"]] <- as.numeric(factor(data[["BsmtExposure"]], levels=c("None","No", "Mn", "Av", "Gd")))
+data[["BsmtFinType1"]] <- as.numeric(factor(data[["BsmtFinType1"]], levels=c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ")))
+data[["HeatingQC"]] <- as.numeric(factor(data[["HeatingQC"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["KitchenQual"]] <- as.numeric(factor(data[["KitchenQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["GarageQual"]] <- as.numeric(factor(data[["GarageQual"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+data[["GarageCond"]] <- as.numeric(factor(data[["GarageCond"]], levels=c("None","Po", "Fa", "TA", "Gd", "Ex")))
+#----------------------------------------------SEPARATE
+train = cbind(data[1:1100,], train[80])
+test = data[1101:dim(data)[1], ]
+numeric_attribute <- names(Filter(is.numeric,train))
+train_num <- train[numeric_attribute]
+categorical_attribute <- names(Filter(is.character,train))
+train_cat <- train[categorical_attribute]
+
+numeric_attribute <- names(Filter(is.numeric,test))
+test_num <- test[numeric_attribute]
+categorical_attribute <- names(Filter(is.character,test))
+test_cat <- test[categorical_attribute]
+#---------------------------------OUTLIER
 single.col.out<-function(train_num, test, col){  #on train: (train_num, train_num, col)| on test: (train_num, test, col) obv
   a=boxplot.stats(train_num[[col]])
   b=as.factor(a$out)
@@ -109,28 +141,24 @@ single.col.out<-function(train_num, test, col){  #on train: (train_num, train_nu
   }
   return(test)
 }
-# for the Test
+# Test first necessarily (otherwise my train would change being unable to change test with his outliers values)
 for(colonna in colnames(test_num[1:length(test_num)])){
   print(colonna)
   test_num= single.col.out(train_num,test_num,colonna)
 }
-#for the Train
+#Train
 for(colonna in colnames(train_num[1:length(train_num)])){
   print(colonna)
   train_num= single.col.out(train_num, train_num, colonna)
 }
 
-#Delete non-zero variance variables
-nzv_cols = nearZeroVar(train)
-if(length(nzv_cols) > 0) 
-  train = train[, -nzv_cols]
-
-#Merging highly correlated predictors
+#--------------------------------- DATI CORRELATI TRA DI LORO
+library("corrplot")
 Correlation_trainnum <- cor(train_num)
 corrplot(Correlation_trainnum, method = "circle")
 cor(train_num)
 
-#x1stFlrSF e TotalBsmtSf      #VISTE A OCCHIO!!!!!!!
+#x1stFlrSF e TotalBsmtSf
 #grlivearea e TotRmsAbvGrd
 #GarageCars e GarageArea
 
@@ -147,8 +175,155 @@ cor(train_num$GarageArea, train_num$SalePrice)
 
 train_num[["GarageArea"]] <- NULL 
 train_num[["X1stFlrSF"]] <- NULL 
-train_num[["TotRmsAbvGrd "]] <- NULL
+train_num[["TotRmsAbvGrd "]] <- NULL 
+test_num[["GarageArea"]] <- NULL 
+test_num[["X1stFlrSF"]] <- NULL 
+test_num[["TotRmsAbvGrd "]] <- NULL 
+#--------------------------DUMMY
+New_data <- cbind(train_cat)
+dummy_train <- dummy.data.frame(New_data, sep = ".")
+train <- cbind(train_num,dummy_train)
 
-#Dummy
-dummy<- cbind(train_cat)
-dummy_traincat<- dummy.data.frame(dummy, sep = ".")
+
+New_data2 <- cbind(test_cat)
+dummy_test <- dummy.data.frame(New_data2, sep = ".")
+test <- cbind(test_num,dummy_test)
+
+a <- c(names(dummy_train))
+b <- c(names(dummy_test))
+Dummy_def <- intersect(a,b)
+h <- setdiff(b, a)
+
+dummy_train[,"Condition1.RRNn"] <- 0*seq(1:1100)
+dummy_train[,"Exterior2nd.Other"] <- 0*seq(1:1100)
+dummy_test[,"LotShape.IR3"] <- 0*seq(1:360)
+dummy_test[,"Exterior1st.AsphShn"] <- 0*seq(1:360)
+dummy_test[,"Exterior1st.CBlock"] <- 0*seq(1:360)
+dummy_test[,"Exterior1st.ImStucc"] <- 0*seq(1:360)
+dummy_test[,"Exterior1st.Stone"] <- 0*seq(1:360)
+dummy_test[,"Exterior2nd.AsphShn"] <- 0*seq(1:360)
+dummy_test[,"Exterior2nd.CBlock"] <- 0*seq(1:360)
+dummy_test[,"Foundation.Wood"] <- 0*seq(1:360)
+dummy_test[,"Electrical.Mix"] <- 0*seq(1:360)
+dummy_test[,"SaleType.Con"] <- 0*seq(1:360)
+dummy_test[,"SaleType.ConLw"] <- 0*seq(1:360)
+train <- cbind(train_num,dummy_train)
+test <- cbind(test_num,dummy_test)
+g <- setdiff(a,b)
+
+#---------------------------MODELS Lm
+library(tidyverse)
+library(caret)
+library(xgboost)
+set.seed(123)
+training.samples <- train$SalePrice %>% 
+createDataPartition(p = 0.7, list = FALSE)
+train.data  <- train[training.samples, ]
+test.data <- train[-training.samples, ]
+#train senza near-zero e Na e i correlati tra di loro numerici con dummy
+model <- train(
+  SalePrice ~., data= train.data, method = "lm",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+
+predicted.classes <- model %>% predict(test.data)
+head(predicted.classes)
+ss= mean(abs((test.data$SalePrice-predicted.classes)))
+a <-sum((test.data$SalePrice-predicted.classes)^2) 
+b <- (a/329)
+sqrt(b)
+ss
+predicted.classes
+#---------------------------Models rf
+library(tidyverse)
+library(caret)
+library(xgboost)
+set.seed(123)
+training.samples <- train$SalePrice %>% 
+  createDataPartition(p = 0.7, list = FALSE)
+train.data  <- train[training.samples, ]
+test.data <- train[-training.samples, ]
+#train senza near-zero e Na e i correlati tra di loro numerici con dummy
+model <- train(
+  SalePrice ~., data= train.data, method = "rf",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+
+predicted.classes <- model %>% predict(test.data)
+head(predicted.classes)
+ss= mean(abs((test.data$SalePrice-predicted.classes)))
+a <-sum((test.data$SalePrice-predicted.classes)^2) 
+b <- (a/329)
+sqrt(b)
+ss
+#----------------------------
+library(tidyverse)
+library(caret)
+library(xgboost)
+set.seed(123)
+training.samples <- train$SalePrice %>% 
+createDataPartition(p = 0.7, list = FALSE)
+train.data  <- train[training.samples, ]
+test.data <- train[-training.samples, ]
+#train senza near-zero e Na e i correlati tra di loro numerici con dummy
+model <- train(
+  SalePrice ~., data= train.data, method = "xgbTree",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+
+predicted.classes <- model %>% predict(test.data)
+head(predicted.classes)
+ss= mean(abs((test.data$SalePrice-predicted.classes)))
+a <-sum((test.data$SalePrice-predicted.classes)^2) 
+b <- (a/329)
+sqrt(b)
+ss
+
+#----------------------------SUBMIT
+
+model <- train(
+  SalePrice ~., data= train, method = "rf",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+# predict on the test
+y.hat = predict(model0, test)
+write.table(y.hat, "preds-lm.csv", row.names = FALSE, col.names = FALSE)
+y.hat = predict(model1, test)
+write.table(y.hat, "preds-rf.csv", row.names = FALSE, col.names = FALSE)
+y.hat = predict(model2, test)
+write.table(y.hat, "preds-boosting.csv", row.names = FALSE, col.names = FALSE)
+
+  
+
+
+#-------------------
+library(tidyverse)
+library(caret)
+library(xgboost)
+set.seed(123)
+#train senza near-zero e Na e i correlati tra di loro numerici con dummy
+model0 <- train(
+  SalePrice ~., data= train, method = "lm",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+
+predicted.classes <- model %>% predict(train)
+head(predicted.classes)
+ss= mean(abs((train$SalePrice-predicted.classes)))
+a <-sum((train$SalePrice-predicted.classes)^2) 
+b <- (a/329)
+sqrt(b)
+ss
+
+model1 <- train(
+  SalePrice ~., data= train, method = "rf",importance=T,
+  trControl = trainControl("cv", number = 10)
+)
+
+predicted.classes <- model %>% predict(train)
+head(predicted.classes)
+ss= mean(abs((train$SalePrice-predicted.classes)))
+a <-sum((train$SalePrice-predicted.classes)^2) 
+b <- (a/329)
+sqrt(b)
+ss
