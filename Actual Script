@@ -20,7 +20,7 @@ train[["Alley"]][is.na(train[["Alley"]])] <- "None"
 train[["Fence"]][is.na(train[["Fence"]])] <- "None"
 #NA for FireplaceQu means no fireplace
 train[["FireplaceQu"]][is.na(train[["FireplaceQu"]])] <- "None"
-#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data.
+#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data. !!!!!!!!!!!!
 train[["LotFrontage"]][is.na(train[["LotFrontage"]])] <- 69
 #For NAs in the garage factors, they mean that there is no garage
 train[["GarageYrBlt"]][is.na(train[["GarageYrBlt"]])] <- 0
