@@ -3,9 +3,10 @@ library(mltools)
 library(dummies)
 library(corrplot)
 library(caret)
+library(readr)
 
-test <- read.csv("test.csv")
-train <- read.csv("train.csv")
+test <- read_csv("test.csv")
+train <- read_csv("train.csv")
 train_num=train[, (sapply(train, class) == "integer")]
 test_num=test[, (sapply(test, class) == "integer")]
 
@@ -20,8 +21,8 @@ train[["Alley"]][is.na(train[["Alley"]])] <- "None"
 train[["Fence"]][is.na(train[["Fence"]])] <- "None"
 #NA for FireplaceQu means no fireplace
 train[["FireplaceQu"]][is.na(train[["FireplaceQu"]])] <- "None"
-#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data. !!!!!!!!!!!!
-train[["LotFrontage"]][is.na(train[["LotFrontage"]])] <- 69
+#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data. 
+train[["LotFrontage"]][is.na(train[["LotFrontage"]])] <- 69 #summary(train[["LotFrontage"]])[["Mean"]]
 #For NAs in the garage factors, they mean that there is no garage
 train[["GarageYrBlt"]][is.na(train[["GarageYrBlt"]])] <- 0
 train[["GarageFinish"]][is.na(train[["GarageFinish"]])] <- "None"
@@ -147,3 +148,7 @@ cor(train_num$GarageArea, train_num$SalePrice)
 train_num[["GarageArea"]] <- NULL 
 train_num[["X1stFlrSF"]] <- NULL 
 train_num[["TotRmsAbvGrd "]] <- NULL
+
+#Dummy
+dummy<- cbind(train_cat)
+dummy_traincat<- dummy.data.frame(dummy, sep = ".")
