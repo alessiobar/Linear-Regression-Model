@@ -1,12 +1,15 @@
-library(readr)
-test <- read_csv("~/Desktop/test.csv")
-train <- read_csv("~/Desktop/train.csv")
-
 library(data.table)
 library(mltools)
 library(dummies)
+library(corrplot)
+library(caret)
 
+test <- read.csv("test.csv")
+train <- read.csv("train.csv")
+train_num=train[, (sapply(train, class) == "integer")]
+test_num=test[, (sapply(test, class) == "integer")]
 
+#NA REPLACEMENT
 #NA for PoolQC means no pool
 train[["PoolQC"]][is.na(train[["PoolQC"]])] <- "None"
 #NA for MiscFeature means none
@@ -39,7 +42,6 @@ train[["BsmtFinSF1"]][is.na(train[["BsmtFinSF1"]])] <- 0
 train[["BsmtFinSF2"]][is.na(train[["BsmtFinSF2"]])] <- 0
 train[["BsmtUnfSF"]][is.na(train[["BsmtUnfSF"]])] <- 0
 train[["TotalBsmtSF"]][is.na(train[["TotalBsmtSF"]])] <- 0
-
 #NA for MasVnrType and MasVnrArea means no masory veneer
 train[["MasVnrType"]][is.na(train[["MasVnrType"]])] <- "None"
 train[["MasVnrArea"]][is.na(train[["MasVnrArea"]])] <- 0
@@ -58,8 +60,6 @@ train[["Electrical"]][is.na(train[["Electrical"]])] <- "SBrkr"
 train[["KitchenQual"]][is.na(train[["KitchenQual"]])] <- "TA"
 #For NAs in SaleType, we fill in the most common type, WD
 train[["SaleType"]][is.na(train[["SaleType"]])] <- "WD"
-
-
 
 #Na values
 colSums(is.na(train))
@@ -81,14 +81,69 @@ train[["FireplaceQu"]] <- NULL
 #Alley
 train[["Alley"]] <- NULL
 
+#NA Replacement
+fill.na.num = function(x){
+  for(i in 1:length(x)){
+    col = x[, i]
+    if(sum(is.na(col)) > 0){
+      col[is.na(col)] = median(col, na.rm = TRUE)
+    }
+    x[, i] = col
+  } 
+  return(x)
+}
 
+train_num=fill.na.num(train_num)
+test_num=fill.na.num(test_num)
 
-
+#Outliers 
+single.col.out<-function(train_num, test, col){  #on train: (train_num, train_num, col)| on test: (train_num, test, col) obv
+  a=boxplot.stats(train_num[[col]])
+  b=as.factor(a$out)
+  c=levels(b)
+  for(x in seq(1:length(test[[col]]))){
+    if(test[[col]][x]>boxplot.stats(train_num[[col]])$stats[4]){
+      test[[col]][x]=boxplot.stats(train_num[[col]])$stats[4]}
+    else if(test[[col]][x]<boxplot.stats(train_num[[col]])$stats[2]){test[[col]][x]=boxplot.stats(train_num[[col]])$stats[2]}
+  }
+  return(test)
+}
+# for the Test
+for(colonna in colnames(test_num[1:length(test_num)])){
+  print(colonna)
+  test_num= single.col.out(train_num,test_num,colonna)
+}
+#for the Train
+for(colonna in colnames(train_num[1:length(train_num)])){
+  print(colonna)
+  train_num= single.col.out(train_num, train_num, colonna)
+}
 
 #Delete non-zero variance variables
-install.packages("caret")
-library(caret)
 nzv_cols = nearZeroVar(train)
-names(train[nzv_cols])
 if(length(nzv_cols) > 0) 
   train = train[, -nzv_cols]
+
+#Merging highly correlated predictors
+Correlation_trainnum <- cor(train_num)
+corrplot(Correlation_trainnum, method = "circle")
+cor(train_num)
+
+#x1stFlrSF e TotalBsmtSf      #VISTE A OCCHIO!!!!!!!
+#grlivearea e TotRmsAbvGrd
+#GarageCars e GarageArea
+
+cor(train_num$X1stFlrSF,train_num$TotalBsmtSF)
+cor(train_num$TotRmsAbvGrd,train_num$GrLivArea)
+cor(train_num$GarageCars,train_num$GarageArea)
+
+cor(train_num$GrLivArea, train_num$SalePrice)
+cor(train_num$TotRmsAbvGrd,train_num$SalePrice)
+cor(train_num$X1stFlrSF,train_num$SalePrice)
+cor(train_num$TotalBsmtSF,train_num$SalePrice)
+cor(train_num$GarageCars, train_num$SalePrice)
+cor(train_num$GarageArea, train_num$SalePrice)
+
+train_num[["GarageArea"]] <- NULL 
+train_num[["X1stFlrSF"]] <- NULL 
+train_num[["TotRmsAbvGrd "]] <- NULL
