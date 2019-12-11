@@ -229,9 +229,8 @@ model <- train(
 predicted.classes <- model %>% predict(test.data)
 head(predicted.classes)
 ss= mean(abs((test.data$SalePrice-predicted.classes)))
-a <-sum((test.data$SalePrice-predicted.classes)^2) 
-b <- (a/329)
-sqrt(b)
+mse0 <- mse(test.data$SalePrice,predicted.classes)
+sqrt(mse0)
 ss
 predicted.classes
 #---------------------------Models rf
@@ -260,6 +259,7 @@ ss
 library(tidyverse)
 library(caret)
 library(xgboost)
+library(plyr)
 set.seed(123)
 training.samples <- train$SalePrice %>% 
 createDataPartition(p = 0.7, list = FALSE)
@@ -307,23 +307,30 @@ model0 <- train(
   trControl = trainControl("cv", number = 10)
 )
 
-predicted.classes <- model %>% predict(train)
+predicted.classes <- model0 %>% predict(train)
 head(predicted.classes)
 ss= mean(abs((train$SalePrice-predicted.classes)))
 a <-sum((train$SalePrice-predicted.classes)^2) 
-b <- (a/329)
+b <- mean(a)
 sqrt(b)
 ss
+b
+
 
 model1 <- train(
-  SalePrice ~., data= train, method = "rf",importance=T,
+  SalePrice ~., data= train, method = "xgbTree",importance=T,
   trControl = trainControl("cv", number = 10)
 )
 
-predicted.classes <- model %>% predict(train)
+predicted.classes <- model0 %>% predict(train)
 head(predicted.classes)
 ss= mean(abs((train$SalePrice-predicted.classes)))
-a <-sum((train$SalePrice-predicted.classes)^2) 
+a <-mean(sum((train$SalePrice-predicted.classes)^2))
+sqrt(a)
 b <- (a/329)
 sqrt(b)
 ss
+mse(predicted.classes,train$SalePrice)
+train$SalePrice-predicted.classes
+y.hat = predict(model1, test)
+write.table(y.hat, "preds-temp.csv", row.names = FALSE, col.names = FALSE)
