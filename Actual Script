@@ -1,0 +1,94 @@
+library(readr)
+test <- read_csv("~/Desktop/test.csv")
+train <- read_csv("~/Desktop/train.csv")
+
+library(data.table)
+library(mltools)
+library(dummies)
+
+
+#NA for PoolQC means no pool
+train[["PoolQC"]][is.na(train[["PoolQC"]])] <- "None"
+#NA for MiscFeature means none
+train[["MiscFeature"]][is.na(train[["MiscFeature"]])] <- "None"
+#NA for Alley means no alley access
+train[["Alley"]][is.na(train[["Alley"]])] <- "None"
+#NA for Fence means no fence
+train[["Fence"]][is.na(train[["Fence"]])] <- "None"
+#NA for FireplaceQu means no fireplace
+train[["FireplaceQu"]][is.na(train[["FireplaceQu"]])] <- "None"
+#For NAs in LotFrontage, we will fill in the median lot frontage from the rest of the data.
+train[["LotFrontage"]][is.na(train[["LotFrontage"]])] <- 69
+#For NAs in the garage factors, they mean that there is no garage
+train[["GarageYrBlt"]][is.na(train[["GarageYrBlt"]])] <- 0
+train[["GarageFinish"]][is.na(train[["GarageFinish"]])] <- "None"
+train[["GarageQual"]][is.na(train[["GarageQual"]])] <- "None"
+train[["GarageCond"]][is.na(train[["GarageCond"]])] <- "None"
+train[["GarageType"]][is.na(train[["GarageType"]])] <- "None"
+train[["GarageCars"]][is.na(train[["GarageCars"]])] <- 0
+train[["GarageArea"]][is.na(train[["GarageArea"]])] <- 0
+#For NAs in the basement factors, they mean that there is no basement
+train[["BsmtCond"]][is.na(train[["BsmtCond"]])] <- "None"
+train[["BsmtExposure"]] [is.na(train[["BsmtExposure"]])] <- "None"
+train[["BsmtQual"]][is.na(train[["BsmtQual"]])] <- "None"
+train[["BsmtFinType2"]][is.na(train[["BsmtFinType2"]])] <- "None"
+train[["BsmtFinType1"]][is.na(train[["BsmtFinType1"]])] <- "None"
+train[["BsmtFullBath"]][is.na(train[["BsmtFullBath"]])] <- 0
+train[["BsmtHalfBath"]][is.na(train[["BsmtHalfBath"]])] <- 0
+train[["BsmtFinSF1"]][is.na(train[["BsmtFinSF1"]])] <- 0
+train[["BsmtFinSF2"]][is.na(train[["BsmtFinSF2"]])] <- 0
+train[["BsmtUnfSF"]][is.na(train[["BsmtUnfSF"]])] <- 0
+train[["TotalBsmtSF"]][is.na(train[["TotalBsmtSF"]])] <- 0
+
+#NA for MasVnrType and MasVnrArea means no masory veneer
+train[["MasVnrType"]][is.na(train[["MasVnrType"]])] <- "None"
+train[["MasVnrArea"]][is.na(train[["MasVnrArea"]])] <- 0
+#For NAs in MSZoning, we fill in the most common type, RL
+train[["MSZoning"]][is.na(train[["MSZoning"]])] <- "RL"
+#For NAs in Utilities, we fill in the most common type, AllPub
+train[["Utilities"]][is.na(train[["Utilities"]])] <- "AllPub"
+#For NAs in Functional, we fill in the most common type, Typ
+train[["Functional"]][is.na(train[["Functional"]])] <- "Typ"
+#For NAs in exteriors, we will fill in "Other"
+train[["Exterior1st"]][is.na(train[["Exterior1st"]])] <- "Other"
+train[["Exterior2nd"]][is.na(train[["Exterior2nd"]])] <- "Other"
+#For NAs in Electrical, we fill in the most common type, SBrkr
+train[["Electrical"]][is.na(train[["Electrical"]])] <- "SBrkr"
+#For NAs in KitchenQual, we fill in the most common type, TA
+train[["KitchenQual"]][is.na(train[["KitchenQual"]])] <- "TA"
+#For NAs in SaleType, we fill in the most common type, WD
+train[["SaleType"]][is.na(train[["SaleType"]])] <- "WD"
+
+
+
+#Na values
+colSums(is.na(train))
+
+#Miscellaneous useless
+train["MiscFeature"] <- NULL
+# Street values are all equals
+train["Street"] <- NULL
+# Utilities values are all equals
+train["Utilities"] <- NULL
+#Conditions 2 are all equals
+train["Condition2"] <- NULL
+#Fence 
+train[["Fence"]] <- NULL
+#Pool
+train[["PoolQC"]] <- NULL
+#fireplace
+train[["FireplaceQu"]] <- NULL
+#Alley
+train[["Alley"]] <- NULL
+
+
+
+
+
+#Delete non-zero variance variables
+install.packages("caret")
+library(caret)
+nzv_cols = nearZeroVar(train)
+names(train[nzv_cols])
+if(length(nzv_cols) > 0) 
+  train = train[, -nzv_cols]
